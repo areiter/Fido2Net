@@ -172,6 +172,32 @@ namespace Fido2Net
         /// <exception cref="CtapException">Thrown if an error occurs while setting the pin</exception>
         public void SetPin(string oldPin, string pin) => Native.fido_dev_set_pin(_native, pin, oldPin).Check();
 
+
+        public ulong GetDeviceMetadata(string pin)
+        {
+            var metadata = Native.fido_credman_metadata_new();
+            var rk = Native.fido_credman_rk_new();
+            try
+            {
+                int returnval;
+                if((returnval = Native.fido_credman_get_dev_metadata(_native, metadata, pin)) != 0)
+                {
+                    throw new Exception($"Error getting device metadata: {returnval}");
+                }
+
+                //return 0;
+
+                return Native.fido_credman_rk_existing(metadata);
+                //return Native.fido_credman_rk_count()
+            }
+            finally
+            {
+                //TODO: why does this not work?
+                //Native.fido_credman_metadata_free(metadata);
+                Native.fido_credman_rk_free(rk);
+            }
+        }
+
         public void SetTimeout(TimeSpan timeout) => Native.fido_dev_set_timeout(_native, (int)timeout.TotalMilliseconds);
 
         #endregion

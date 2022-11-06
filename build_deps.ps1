@@ -24,15 +24,15 @@ if(-Not (Test-Path $CMakePath)) {
 Push-Location $PSScriptRoot
 try {
     if(-Not (Test-Path libfido2)) {
-        & $Git clone https://github.com/yubico/libfido2 --branch 1.9.0
+        & $Git clone https://github.com/yubico/libfido2 --branch 1.12.0
     }
 
     libfido2\windows\build.ps1
     New-Item -Type Directory -ErrorAction Ignore .\Fido2Net\Native
     Copy-Item .\libfido2\build\x64\dynamic\src\Release\fido2.dll Fido2Net\Native\
-    Copy-Item .\libfido2\build\x64\dynamic\libressl-3.3.4\crypto\Release\crypto-46.dll .\Fido2Net\Native\
-    Copy-Item .\libfido2\build\x64\dynamic\zlib-1.2.11\Release\zlib1.dll .\Fido2Net\Native
-    Copy-Item .\libfido2\build\x64\dynamic\libcbor-0.8.0\src\Release\cbor.dll .\Fido2Net\Native
+    Copy-Item .\libfido2\build\x64\dynamic\libressl-3.5.3\crypto\Release\crypto-49.dll .\Fido2Net\Native\
+    Copy-Item .\libfido2\build\x64\dynamic\zlib-1.2.12\Release\zlib1.dll .\Fido2Net\Native
+    Copy-Item .\libfido2\build\x64\dynamic\libcbor-0.9.0\src\Release\cbor.dll .\Fido2Net\Native
 } finally {
     Pop-Location
 }
