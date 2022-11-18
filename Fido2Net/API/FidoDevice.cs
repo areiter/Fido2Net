@@ -1,7 +1,8 @@
 ﻿using Fido2Net.Interop;
 using Fido2Net.Util;
 using System;
-
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Fido2Net
 {
@@ -187,14 +188,41 @@ namespace Fido2Net
 
                 //return 0;
 
+                
                 return Native.fido_credman_rk_existing(metadata);
-                //return Native.fido_credman_rk_count()
+                //return Native.fido_credman_rk_count(metadata);
             }
             finally
             {
                 //TODO: why does this not work?
                 //Native.fido_credman_metadata_free(metadata);
                 Native.fido_credman_rk_free(rk);
+            }
+        }
+
+        public IList<String> GetRPsWithDiscoverableCredentials(string pin)
+        {
+            var rps = Native.fido_credman_rp_new();
+            try
+            {
+                int retval = Native.fido_credman_get_dev_rp(_native, rps, pin);
+                if(retval != 0)
+                {
+                    throw new Exception($"Error getting rps for device: {retval}");
+                }
+
+                var rpLenPtr = Native.fido_credman_rp_count(rps);
+                var result = new List<String>();
+                for(ulong i = 0; i< rpLenPtr.ToUInt64(); i++)
+                {
+                    string id = Native.fido_credman_rp_id(rps, new UIntPtr(i));
+                    result.Add(id);
+                }
+                return result;
+            }
+            finally
+            {
+                Native.fido_credman_rp_free(rps);
             }
         }
 

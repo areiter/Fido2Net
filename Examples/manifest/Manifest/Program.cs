@@ -32,11 +32,21 @@ namespace Manifest
         {
             try
             {
-                var deviceMetadata = dev.GetDeviceMetadata("pin");
+                String pin = "1234";
+                var deviceMetadata = dev.GetDeviceMetadata(pin);
                 Console.WriteLine($"Existing residential keys {deviceMetadata}");
+                
+                var rpIds = dev.GetRPsWithDiscoverableCredentials(pin);
+                Console.WriteLine("Following Relying Parties with Discoverable credentials exist:");
+
+                foreach(String rp in rpIds)
+                {
+                    Console.WriteLine(rp);
+                }
+
             }catch(Exception e)
             {
-                Console.WriteLine("");
+                Console.WriteLine(e.ToString());
             }
         }
     }
