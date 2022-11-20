@@ -226,6 +226,68 @@ namespace Fido2Net
             }
         }
 
+        public ulong CountCredentialsForRP(string rp, string pin)
+        {
+            var rks = Native.fido_credman_rk_new();
+            try
+            {
+                int retval = Native.fido_credman_get_dev_rk(_native, rks, pin);
+                if (retval != 0)
+                {
+                    throw new Exception($"Error getting rks for RP {rp}: {retval}");
+                }
+
+                var rpLenPtr = Native.fido_credman_rk_count(rks);
+                return rpLenPtr.ToUInt64();
+            }
+            finally
+            {
+                Native.fido_credman_rk_free(rks);
+            }
+        }
+
+        public List<byte[]> CredentialsForRP(string rp, string pin)
+        {
+            var rks = Native.fido_credman_rk_new();
+            try
+            {
+                int retval = Native.fido_credman_get_dev_rk(_native, rks, pin);
+                if (retval != 0)
+                {
+                    throw new Exception($"Error getting rks for RP {rp}: {retval}");
+                }
+
+
+                List<byte[]> result = new List<byte[]>();
+                
+                var rpLenPtr = Native.fido_credman_rk_count(rks);
+
+                for(ulong i = 0; i< rpLenPtr.ToUInt64(); i++)
+                {
+                    var credN = Native.fido_credman_rk(rks, new UIntPtr(i));
+                    var cred = new FidoCredential(credN);
+                    try
+                    {
+                        var idN = cred.Id;
+                        byte[] id = new byte[idN.Length];
+                        idN.CopyTo(id);
+                        result.Add(id);
+                    }
+                    finally
+                    {
+                        cred.Dispose();
+                    }
+                }
+                return result;
+            }
+            finally
+            {
+                Native.fido_credman_rk_free(rks);
+            }
+        }
+
+
+
         public void SetTimeout(TimeSpan timeout) => Native.fido_dev_set_timeout(_native, (int)timeout.TotalMilliseconds);
 
         #endregion

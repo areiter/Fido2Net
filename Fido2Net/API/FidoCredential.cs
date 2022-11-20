@@ -212,6 +212,15 @@ namespace Fido2Net
                 throw new OutOfMemoryException();
             }
         }
+        public FidoCredential(fido_cred_t* native)
+        {
+            if (native == null)
+            {
+                throw new OutOfMemoryException();
+            }
+
+            _native = native;
+        }
 
         /// <summary>
         /// Finalizer
